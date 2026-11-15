@@ -1,0 +1,8 @@
+# Saltos de linea LF en todo el repo (evita fallos de scripts y Ansible en WSL/Linux)
+* text=auto eol=lf
+
+# Binarios: sin conversion de saltos de linea
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
