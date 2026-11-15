@@ -1,6 +1,6 @@
 services:
   loki:
-    image: grafana/loki:3.3.2
+    image: grafana/loki:3.7.9
     restart: unless-stopped
     cap_drop: [ALL]
     security_opt:
