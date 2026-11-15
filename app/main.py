@@ -14,3 +14,12 @@ def root() -> dict:
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+import subprocess  # noqa: E402
+
+
+@app.get("/ping")
+def ping(host: str) -> dict:
+    out = subprocess.run(f"ping -c 1 {host}", shell=True, capture_output=True, text=True)
+    return {"output": out.stdout}
