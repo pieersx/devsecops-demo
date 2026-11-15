@@ -2,9 +2,21 @@ discovery.docker "containers" {
   host = "unix:///var/run/docker.sock"
 }
 
+// Etiqueta cada flujo con el nombre del contenedor (sin la "/" inicial).
+// Loki usa la etiqueta "container" para rellenar service_name.
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
 loki.source.docker "containers" {
   host       = "unix:///var/run/docker.sock"
-  targets    = discovery.docker.containers.targets
+  targets    = discovery.relabel.containers.output
   labels     = { host = "app" }
   forward_to = [loki.write.ops.receiver]
 }
