@@ -71,7 +71,7 @@ Un solo archivo editable, [`docs/architecture.drawio`](docs/architecture.drawio)
 
 ## Costos y limpieza
 
-- 3 instancias (2 t3.micro + 1 t3.small), 3 IPv4 publicas y 60 GB de EBS: unos centavos por hora.
+- 3 instancias (1 t3.micro + 2 t3.small), 3 IPv4 publicas y 60 GB de EBS: unos centavos por hora.
 - **Al terminar: `cd infra && tofu destroy`.**
 
 ## Limitaciones conocidas

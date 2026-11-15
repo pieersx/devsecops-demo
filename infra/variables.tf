@@ -15,7 +15,7 @@ variable "vms" {
   type        = map(string)
   default = {
     gateway = "t3.micro"
-    app     = "t3.micro"
+    app     = "t3.small" # 1 GB no alcanza para API + Alloy + Falco: Falco muere por OOM
     ops     = "t3.small"
   }
 }
