@@ -1,6 +1,6 @@
 services:
   caddy:
-    image: caddy:2.9
+    image: caddy:2.10
     restart: unless-stopped
     cap_drop: [ALL]
     cap_add: [NET_BIND_SERVICE]
