@@ -19,7 +19,7 @@ services:
 
   # Deteccion en runtime: alerta ante shells en contenedores, escrituras en /etc, etc.
   falco:
-    image: falcosecurity/falco:0.45.2 # 0.39.x no inicia el sensor modern_ebpf en el kernel 7.0 de Ubuntu 26.04
+    image: falcosecurity/falco:0.45.2 # 0.39.x no inicia el sensor modern_ebpf en el kernel 7.0 (HWE) de Ubuntu 24.04
     restart: unless-stopped
     privileged: true # requerido por Falco para cargar su sonda eBPF; aislado en esta VPS
     command: ["falco", "-o", "engine.kind=modern_ebpf", "-o", "json_output=true"]

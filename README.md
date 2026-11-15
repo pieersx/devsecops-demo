@@ -7,26 +7,22 @@ Internet --80--> [gateway: Caddy] --8000--> [app: API + Falco + Alloy] --3100-->
                                                                            ^ acceso solo por tunel SSM
 ```
 
-## Diagramas
+## Documentación y diagramas
 
-Un solo archivo editable, [`docs/architecture.drawio`](docs/architecture.drawio), con 10 paginas (pestanas) organizadas en niveles, al estilo del modelo C4: cada nivel responde una pregunta distinta para una audiencia distinta. Abrelo en diagrams.net o con la extension de draw.io; los iconos de marca se cargan desde internet.
+La referencia de la infraestructura es **[docs/INFRAESTRUCTURA.md](docs/INFRAESTRUCTURA.md)**: inventario, red, DNS, TLS, comunicaciones, identidad, cadena de suministro, hardening, detección, modelo de amenazas, runbooks y hoja de ruta. Incluye una guía de qué debe documentar un DevSecOps en 2026. Todo lo que afirma se puede verificar con los comandos del apéndice A.
 
-| Nivel | Pagina | Pregunta que responde | Vista previa |
-|---|---|---|---|
-| **Macro** | M1 · Contexto y fronteras de confianza | Que sistema es, quien lo usa y en quien confia en cada frontera | [PNG](docs/architecture-m1-contexto-y-confianza.png) |
-| **Macro** | M2 · Plataforma por dentro | Que componentes hay en cada VPS y como se hablan | [PNG](docs/architecture-m2-plataforma-por-dentro.png) |
-| **Macro** | M3 · Flujos de extremo a extremo | Como funciona en sus cuatro recorridos principales | [PNG](docs/architecture-m3-flujos-de-extremo-a-extremo.png) |
-| Micro | μ1 · Red y acceso | Quien puede hablar con quien, y por que puertos | [PNG](docs/architecture-u1-red-y-acceso.png) |
-| Micro | μ2 · Pipeline CI/CD | Como llega el codigo a produccion sin riesgo | [PNG](docs/architecture-u2-pipeline-cicd.png) |
-| Micro | μ3 · VPS en capas | Que protege a una VPS en cada capa | [PNG](docs/architecture-u3-vps-en-capas.png) |
-| Micro | μ4 · Identidad y secretos | Quien o que puede hacer que, con que credenciales | [PNG](docs/architecture-u4-identidad-y-secretos.png) |
-| Micro | μ5 · Observabilidad y deteccion | De donde sale cada senal y como se decide si es un incidente | [PNG](docs/architecture-u5-observabilidad-y-deteccion.png) |
-| Micro | μ6 · Modelo de amenazas | Que puede salir mal y que lo frena | [PNG](docs/architecture-u6-modelo-de-amenazas.png) |
-| Estado | R · Hoja de ruta de seguridad | Que falta y en que orden cerrarlo | [PNG](docs/architecture-r-hoja-de-ruta.png) |
+Los diagramas viven en un solo archivo editable, [`docs/architecture.drawio`](docs/architecture.drawio), con 4 páginas. Ábrelo en diagrams.net o con la extensión de draw.io (los iconos de marca se cargan desde internet).
 
-Convenciones: los flujos van numerados; lo no implementado se dibuja en gris discontinuo; cada flecha de un color tiene el mismo significado en todas las paginas (ver la leyenda al pie). Los diagramas muestran el estado real: cuando un control falta, se dice.
+| Diagrama | Qué responde | Vista previa |
+|---|---|---|
+| 1 · Arquitectura general | Qué sistema es, quién lo usa y en quién confía en cada frontera | [PNG](docs/architecture-1-arquitectura-general.png) |
+| 2 · Red y comunicaciones | Quién puede hablar con quién, por qué puertos, y cómo van DNS y TLS | [PNG](docs/architecture-2-red-y-comunicaciones.png) |
+| 3 · Pipeline CI/CD y cadena de suministro | Cómo llega el código a producción sin riesgo | [PNG](docs/architecture-3-pipeline-cicd.png) |
+| 4 · Identidad, acceso y secretos | Quién o qué puede hacer qué, con qué credenciales | [PNG](docs/architecture-4-identidad-y-acceso.png) |
 
-![Contexto y fronteras de confianza](docs/architecture-m1-contexto-y-confianza.png)
+Los flujos van numerados, lo no implementado se dibuja en gris discontinuo y cada color de flecha significa lo mismo en todos los diagramas. Los diagramas muestran el estado real: cuando un control falta, se dice.
+
+![Arquitectura general](docs/architecture-1-arquitectura-general.png)
 
 ## Controles
 
