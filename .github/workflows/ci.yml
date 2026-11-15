@@ -96,8 +96,10 @@ jobs:
       - name: Build, push y firma por digest
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
-          docker build --build-arg APP_VERSION="${GITHUB_SHA}" -t "$IMAGE:${GITHUB_SHA}" app
+          docker build --build-arg APP_VERSION="${GITHUB_SHA}" -t "$IMAGE:${GITHUB_SHA}" -t "$IMAGE:latest" app
           docker push "$IMAGE:${GITHUB_SHA}"
+          # "latest" solo sirve para el primer arranque con Ansible; los despliegues usan siempre el digest firmado
+          docker push "$IMAGE:latest"
           DIGEST_REF=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE:${GITHUB_SHA}")
           cosign sign --yes "$DIGEST_REF"
           echo "Imagen firmada: $DIGEST_REF" >> "$GITHUB_STEP_SUMMARY"
