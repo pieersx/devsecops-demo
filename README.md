@@ -46,11 +46,11 @@ Un solo archivo editable, [`docs/architecture.drawio`](docs/architecture.drawio)
    ```bash
    cd infra
    tofu init
-   tofu plan -var 'github_repo=OWNER/devsecops-demo'
-   tofu apply -var 'github_repo=OWNER/devsecops-demo'
+   tofu plan -var 'github_repo=pieersx/devsecops-demo'
+   tofu apply -var 'github_repo=pieersx/devsecops-demo'
    ```
    Guarda `github_deploy_role_arn` como variable de Actions `AWS_ROLE_ARN` y crea el entorno `demo` en GitHub.
-2. **Configuracion**: edita `ansible/group_vars/all.yml` (reemplaza `OWNER`; el paquete de GHCR debe ser publico para la demo) y ejecuta:
+2. **Configuracion**: edita `ansible/group_vars/all.yml` (la imagen ya apunta a `ghcr.io/pieersx`; el paquete de GHCR debe ser publico para la demo) y ejecuta:
    ```bash
    cd ansible
    export ANSIBLE_CONFIG=$PWD/ansible.cfg   # necesario en WSL sobre /mnt/c (directorio con permisos abiertos)
