@@ -54,10 +54,22 @@ jobs:
           docker run --rm -v "$PWD:/w" bridgecrew/checkov:3.2.344 \
             --config-file /w/.checkov.yml
 
+  deps:
+    name: Dependencias vulnerables (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Trivy fs sobre requirements.txt
+        run: |
+          docker run --rm -v "$PWD:/w" aquasec/trivy:0.58.1 \
+            fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /w/app
+
   build-scan:
     name: Build, escaneo de imagen y SBOM
     runs-on: ubuntu-latest
-    needs: [secrets, sast, iac]
+    needs: [secrets, sast, iac, deps]
     steps:
       - uses: actions/checkout@v4
         with:
