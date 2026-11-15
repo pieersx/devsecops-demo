@@ -28,6 +28,7 @@
     owner: root
     group: root
     mode: "0640"
+  notify: Reiniciar Alloy
 
 # force: false -> el pipeline de despliegue puede actualizar APP_IMAGE sin que Ansible lo pise
 - name: Archivo .env inicial con la imagen

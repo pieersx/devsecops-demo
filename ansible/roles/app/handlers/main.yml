@@ -1,0 +1,8 @@
+---
+# docker compose up no reinicia un contenedor cuando solo cambia un archivo montado,
+# asi que Alloy se reinicia explicitamente cuando cambia su configuracion.
+- name: Reiniciar Alloy
+  ansible.builtin.command: docker compose restart alloy
+  args:
+    chdir: /opt/app
+  changed_when: true
