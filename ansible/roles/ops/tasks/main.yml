@@ -26,6 +26,24 @@
   loop:
     - { src: "../../../../deploy/compose.ops.yml", dest: "compose.yml" }
     - { src: "datasources.yml", dest: "datasources.yml" }
+    - { src: "dashboards.yml", dest: "dashboards.yml" }
+
+- name: Directorio de dashboards de Grafana
+  ansible.builtin.file:
+    path: /opt/ops/dashboards
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copiar dashboards (Grafana los recarga cada 60 s)
+  ansible.builtin.copy:
+    src: dashboards/
+    dest: /opt/ops/dashboards/
+    owner: root
+    group: root
+    mode: "0644"
+    directory_mode: "0755"
 
 - name: Levantar Loki y Grafana
   ansible.builtin.command: docker compose up -d --remove-orphans

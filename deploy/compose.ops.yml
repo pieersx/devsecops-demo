@@ -30,6 +30,8 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./dashboards:/etc/grafana/dashboards:ro
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }

@@ -66,7 +66,7 @@ Un solo archivo editable, [`docs/architecture.drawio`](docs/architecture.drawio)
 2. Abrir sesion SSM en una VPS y ejecutar `sudo lynis audit system` (puntaje de hardening).
 3. `bash demo/plant-vuln.sh`, push y PR: el pipeline **falla** (Trivy por la dependencia, Semgrep por `shell=True`).
 4. Corregir, merge, imagen firmada, `deploy` verifica la firma y despliega.
-5. Entrar a un contenedor con `docker exec -it ... sh`: Falco emite alerta, visible en Grafana (tunel: `aws ssm start-session --target <ops-id> --document-name AWS-StartPortForwardingSession --parameters portNumber=3000,localPortNumber=3000`).
+5. Entrar a un contenedor con `docker exec -it ... sh`: Falco emite alerta, visible en el dashboard **DevSecOps · Runtime y alertas** de Grafana, carpeta DevSecOps (tunel: `aws ssm start-session --target <ops-id> --document-name AWS-StartPortForwardingSession --parameters portNumber=3000,localPortNumber=3000`).
 6. Mostrar el SBOM descargado del job `build-scan`.
 
 ## Costos y limpieza
