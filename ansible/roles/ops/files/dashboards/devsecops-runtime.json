@@ -176,8 +176,8 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Contenedores enviando logs",
-      "description": "Contenedores de la VPS app que tienen logs en Loki.",
+      "title": "Errores de la API (4xx/5xx)",
+      "description": "Peticiones rechazadas o fallidas. Muchos 404 seguidos a rutas .php o de WordPress son típicos de escáneres automáticos que buscan webshells.",
       "datasource": {
         "type": "loki",
         "uid": "${ds}"
@@ -195,7 +195,7 @@
             "type": "loki",
             "uid": "${ds}"
           },
-          "expr": "count(sum by (container) (count_over_time({host=\"app\"}[$__range]))) or vector(0)",
+          "expr": "sum(count_over_time({container=\"app-app-1\"} |~ \"HTTP/1.1\\\" [45][0-9]{2}\" [$__range])) or vector(0)",
           "queryType": "instant",
           "legendFormat": ""
         }
@@ -219,8 +219,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "green",
                 "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 100
               }
             ]
           },
@@ -233,8 +241,8 @@
     {
       "id": 5,
       "type": "stat",
-      "title": "Líneas de log de la API",
-      "description": "Volumen de logs de la API en el rango seleccionado.",
+      "title": "Peticiones a la API",
+      "description": "Peticiones HTTP reales. Excluye el healthcheck de Docker (/health cada 30 s) y los mensajes de arranque.",
       "datasource": {
         "type": "loki",
         "uid": "${ds}"
@@ -252,7 +260,7 @@
             "type": "loki",
             "uid": "${ds}"
           },
-          "expr": "sum(count_over_time({container=\"app-app-1\"}[$__range])) or vector(0)",
+          "expr": "sum(count_over_time({container=\"app-app-1\"} |~ \"\\\"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) /\" != \"GET /health\" [$__range])) or vector(0)",
           "queryType": "instant",
           "legendFormat": ""
         }
@@ -296,9 +304,10 @@
         "type": "loki",
         "uid": "${ds}"
       },
+      "interval": "1m",
       "gridPos": {
         "h": 8,
-        "w": 14,
+        "w": 12,
         "x": 0,
         "y": 8
       },
@@ -353,8 +362,8 @@
       "description": "Proceso que dispara la alerta, su proceso padre y la regla. El padre dice quién lo lanzó.",
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 14,
+        "w": 12,
+        "x": 12,
         "y": 8
       },
       "targets": [
@@ -381,10 +390,26 @@
       "fieldConfig": {
         "defaults": {
           "custom": {
-            "align": "auto"
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eventos"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          }
+        ]
       },
       "transformations": [
         {
@@ -396,6 +421,13 @@
           "options": {
             "excludeByName": {
               "Time": true
+            },
+            "indexByName": {
+              "output_fields_proc_name": 0,
+              "output_fields_proc_pname": 1,
+              "Value": 2,
+              "Value #A": 2,
+              "rule": 3
             },
             "renameByName": {
               "output_fields_proc_name": "Proceso",
@@ -489,8 +521,8 @@
     {
       "id": 10,
       "type": "logs",
-      "title": "Logs de la API",
-      "description": "Registros de la aplicación FastAPI.",
+      "title": "Peticiones a la API (sin health checks)",
+      "description": "Peticiones HTTP reales a la aplicación. Atención: la IP de origen es la del gateway, no la del cliente.",
       "datasource": {
         "type": "loki",
         "uid": "${ds}"
@@ -508,7 +540,7 @@
             "type": "loki",
             "uid": "${ds}"
           },
-          "expr": "{container=\"app-app-1\"}",
+          "expr": "{container=\"app-app-1\"} |~ \"\\\"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) /\" != \"GET /health\"",
           "queryType": "range",
           "legendFormat": "",
           "maxLines": 100
@@ -534,6 +566,7 @@
         "type": "loki",
         "uid": "${ds}"
       },
+      "interval": "1m",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -547,7 +580,7 @@
             "type": "loki",
             "uid": "${ds}"
           },
-          "expr": "sum by (container) (count_over_time({host=\"app\"}[$__interval]))",
+          "expr": "sum by (container) (count_over_time({host=\"app\", container=~\".+\"}[$__interval]))",
           "queryType": "range",
           "legendFormat": "{{container}}"
         }
