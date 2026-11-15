@@ -1,0 +1,26 @@
+---
+- name: Base comun (hardening + Docker) en todas las VPS
+  hosts: all
+  become: true
+  roles:
+    - common
+    - docker
+
+# Orden: ops (Loki) -> app (envia logs a Loki) -> gateway (proxy hacia app)
+- name: VPS ops (Loki + Grafana)
+  hosts: ops
+  become: true
+  roles:
+    - ops
+
+- name: VPS app (API + Falco + Alloy)
+  hosts: app
+  become: true
+  roles:
+    - app
+
+- name: VPS gateway (Caddy)
+  hosts: gateway
+  become: true
+  roles:
+    - gateway

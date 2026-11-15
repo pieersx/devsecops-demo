@@ -1,0 +1,25 @@
+directory:
+  - /w/infra
+  - /w/app
+  - /w/.github
+framework:
+  - terraform
+  - dockerfile
+  - github_actions
+quiet: true
+compact: true
+
+# Exclusiones conscientes de la demo (cada una con su justificacion y como cerrarla en produccion)
+skip-check:
+  - CKV_AWS_88     # IP publica en EC2: necesaria para alcanzar SSM sin NAT ni VPC endpoints. Prod: subred privada + endpoints.
+  - CKV_AWS_260    # Ingreso 0.0.0.0/0 al puerto 80 del gateway: demo sin dominio. Prod: 443 con TLS (Caddy + dominio).
+  - CKV_AWS_135    # EBS optimizado: t3.micro/small no lo requieren ni mejora la demo.
+  - CKV_AWS_126    # Monitoreo detallado de EC2: costo adicional; la demo usa Loki/Grafana.
+  - CKV_AWS_145    # Bucket SSM de Ansible temporal (expira en 1 dia): AES256 suficiente. Prod: KMS CMK.
+  - CKV_AWS_144    # Replicacion cross-region: bucket temporal sin datos persistentes.
+  - CKV_AWS_21     # Versionado: bucket temporal con expiracion de 1 dia.
+  - CKV_AWS_18     # Access logging del bucket temporal.
+  - CKV2_AWS_62    # Notificaciones de eventos S3: no aplica.
+  - CKV2_AWS_11    # VPC flow logs: costo; prod: habilitar hacia CloudWatch o S3.
+  - CKV2_AWS_5     # Falso positivo: los SG se asocian por for_each a las instancias.
+  - CKV_GHA_7      # Input image_ref de deploy.yml: se verifica la firma Cosign antes de usarlo.

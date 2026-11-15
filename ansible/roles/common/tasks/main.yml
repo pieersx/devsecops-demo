@@ -1,0 +1,101 @@
+---
+- name: Actualizar indice de paquetes y aplicar parches
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: safe
+    cache_valid_time: 3600
+
+- name: Instalar paquetes de seguridad base
+  ansible.builtin.apt:
+    name:
+      - ufw
+      - auditd
+      - unattended-upgrades
+      - chrony
+      - lynis
+    state: present
+
+- name: Parches de seguridad automaticos
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+# Sin SSH: el acceso es solo por SSM Session Manager (auditado, sin puerto 22, sin llaves)
+- name: Desactivar servicio y socket SSH
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - ssh.socket
+    - ssh.service
+  failed_when: false
+
+- name: Endurecer parametros del kernel
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+    reload: true
+  loop: "{{ sysctl_settings | dict2items }}"
+  vars:
+    sysctl_settings:
+      net.ipv4.conf.all.rp_filter: "1"
+      net.ipv4.conf.all.accept_redirects: "0"
+      net.ipv4.conf.all.send_redirects: "0"
+      net.ipv4.conf.all.accept_source_route: "0"
+      net.ipv4.tcp_syncookies: "1"
+      kernel.kptr_restrict: "2"
+      kernel.dmesg_restrict: "1"
+      kernel.randomize_va_space: "2"
+      fs.suid_dumpable: "0"
+
+- name: Reglas de auditoria (identidad, sudo y Docker)
+  ansible.builtin.copy:
+    dest: /etc/audit/rules.d/99-demo.rules
+    owner: root
+    group: root
+    mode: "0640"
+    content: |
+      -w /etc/passwd -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+      -w /etc/sudoers -p wa -k sudoers
+      -w /etc/sudoers.d/ -p wa -k sudoers
+      -w /etc/docker/daemon.json -p wa -k docker
+      -w /usr/bin/docker -p x -k docker
+  notify: Recargar reglas de auditoria
+
+- name: Cortafuegos del host - denegar entrada por defecto
+  community.general.ufw:
+    default: deny
+    direction: incoming
+
+- name: Cortafuegos del host - permitir salida
+  community.general.ufw:
+    default: allow
+    direction: outgoing
+
+- name: Cortafuegos del host - puertos del rol
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ ufw_allowed_ports | default([]) }}"
+
+- name: Activar cortafuegos del host
+  community.general.ufw:
+    state: enabled
+
+- name: Servicios de seguridad activos
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - auditd
+    - chrony

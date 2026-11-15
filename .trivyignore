@@ -1,0 +1,3 @@
+# Bucket temporal de Ansible (expira en 1 dia): cifrado AES256 gestionado por AWS es suficiente en la demo.
+# En produccion: KMS con clave gestionada por el cliente.
+AVD-AWS-0132

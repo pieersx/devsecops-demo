@@ -1,0 +1,23 @@
+# OpenTofu / Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!example.tfvars
+crash.log
+
+# Secretos y credenciales generadas
+.env
+*.pem
+*.key
+ansible/credentials/
+
+# Herramientas locales
+.playwright-mcp/
+
+# Python / editor
+__pycache__/
+*.pyc
+.venv/
+.idea/
+.vscode/

@@ -1,0 +1,39 @@
+---
+- name: Directorio del gateway
+  ansible.builtin.file:
+    path: /opt/gateway
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Copiar compose del gateway
+  ansible.builtin.copy:
+    src: "../../../../deploy/compose.gateway.yml"
+    dest: /opt/gateway/compose.yml
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Caddyfile con la IP privada de la VPS app
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /opt/gateway/Caddyfile
+    owner: root
+    group: root
+    mode: "0644"
+  register: gateway_caddyfile
+
+- name: Levantar Caddy
+  ansible.builtin.command: docker compose up -d --remove-orphans
+  args:
+    chdir: /opt/gateway
+  register: gateway_up
+  changed_when: "'Started' in gateway_up.stderr or 'Created' in gateway_up.stderr"
+
+- name: Recargar Caddy si cambio la configuracion
+  ansible.builtin.command: docker compose restart caddy
+  args:
+    chdir: /opt/gateway
+  when: gateway_caddyfile.changed and not ('Created' in gateway_up.stderr)
+  changed_when: true

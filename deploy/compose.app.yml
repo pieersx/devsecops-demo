@@ -1,0 +1,47 @@
+services:
+  app:
+    image: ${APP_IMAGE}
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 256m
+    ports:
+      - "8000:8000"
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  # Deteccion en runtime: alerta ante shells en contenedores, escrituras en /etc, etc.
+  falco:
+    image: falcosecurity/falco:0.39.2
+    restart: unless-stopped
+    privileged: true # requerido por Falco para cargar su sonda eBPF; aislado en esta VPS
+    command: ["falco", "-o", "engine.kind=modern_ebpf", "-o", "json_output=true"]
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /etc:/host/etc:ro
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  # Recolector de logs hacia Loki (VPS ops)
+  alloy:
+    image: grafana/alloy:v1.5.1
+    restart: unless-stopped
+    command: ["run", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro # riesgo conocido: lectura del socket; mitigable con un proxy de socket
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

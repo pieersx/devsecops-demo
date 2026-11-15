@@ -1,0 +1,35 @@
+---
+- name: Directorio de la pila ops
+  ansible.builtin.file:
+    path: /opt/ops
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Secreto de Grafana (generado una vez en el controlador, fuera de git)
+  ansible.builtin.copy:
+    dest: /opt/ops/grafana_admin_password
+    content: "{{ lookup('ansible.builtin.password', 'credentials/grafana_admin length=24 chars=ascii_letters,digits') }}"
+    owner: root
+    group: root
+    mode: "0440"
+  no_log: true
+
+- name: Copiar compose y provisionamiento de Grafana
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/opt/ops/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0640"
+  loop:
+    - { src: "../../../../deploy/compose.ops.yml", dest: "compose.yml" }
+    - { src: "datasources.yml", dest: "datasources.yml" }
+
+- name: Levantar Loki y Grafana
+  ansible.builtin.command: docker compose up -d --remove-orphans
+  args:
+    chdir: /opt/ops
+  register: ops_up
+  changed_when: "'Started' in ops_up.stderr or 'Created' in ops_up.stderr"

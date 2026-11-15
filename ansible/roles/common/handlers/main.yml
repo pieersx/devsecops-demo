@@ -1,0 +1,4 @@
+---
+- name: Recargar reglas de auditoria
+  ansible.builtin.command: augenrules --load
+  changed_when: true

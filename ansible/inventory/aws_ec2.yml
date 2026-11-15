@@ -1,0 +1,16 @@
+---
+# Inventario dinamico: descubre las VPS por tag. Sin IPs ni SSH: se conecta por SSM.
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  tag:Project: devsecops-demo
+  instance-state-name: running
+hostnames:
+  - instance-id
+keyed_groups:
+  - key: tags.Role
+    prefix: ""
+    separator: ""
+compose:
+  ansible_host: instance_id

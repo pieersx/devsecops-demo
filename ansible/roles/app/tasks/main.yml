@@ -1,0 +1,47 @@
+---
+- name: Verificar que app_image fue configurada
+  ansible.builtin.assert:
+    that:
+      - "'OWNER' not in app_image"
+    fail_msg: "Edita ansible/group_vars/all.yml y reemplaza OWNER por tu usuario de GitHub."
+
+- name: Directorio de la aplicacion
+  ansible.builtin.file:
+    path: /opt/app
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Copiar compose de la app
+  ansible.builtin.copy:
+    src: "../../../../deploy/compose.app.yml"
+    dest: /opt/app/compose.yml
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Configuracion de Alloy (logs hacia Loki en la VPS ops)
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /opt/app/config.alloy
+    owner: root
+    group: root
+    mode: "0640"
+
+# force: false -> el pipeline de despliegue puede actualizar APP_IMAGE sin que Ansible lo pise
+- name: Archivo .env inicial con la imagen
+  ansible.builtin.copy:
+    dest: /opt/app/.env
+    content: "APP_IMAGE={{ app_image }}\n"
+    owner: root
+    group: root
+    mode: "0640"
+    force: false
+
+- name: Levantar la pila de la app
+  ansible.builtin.command: docker compose up -d --remove-orphans
+  args:
+    chdir: /opt/app
+  register: app_up
+  changed_when: "'Started' in app_up.stderr or 'Created' in app_up.stderr"

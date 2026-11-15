@@ -1,0 +1,29 @@
+---
+- name: Instalar Docker y Compose desde los repositorios de Ubuntu
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+
+- name: Configuracion segura del daemon de Docker
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "10m", "max-file": "3" },
+        "no-new-privileges": true,
+        "live-restore": true,
+        "userland-proxy": false
+      }
+  notify: Reiniciar Docker
+
+- name: Docker activo y habilitado
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: true
